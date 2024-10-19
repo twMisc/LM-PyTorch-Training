@@ -11,7 +11,9 @@ from torch.func import vmap, jacrev
 def cal_L_vec(params, *args):
     """Calculate the loss vector.
     
-    args[i] is a tuple of (loss, data, all_targets), where all_targets is a tuple of (target_1, target_2, ...) that contains all the targets for the loss function with arbritary number of targets.
+    args[i] is a tuple of (loss, inputs, kwargs), where inputs is a tuple of (tensor_1, tensor_2, ...) that contains all the tensors for the loss function with arbritary number of tensors, and kwargs is a dictionary of other arguments that the loss function may need.
+    
+    This first dimension of the tensors in inputs is the batch dimension.
     """
     L_vec_list = list()
     factors = list()
