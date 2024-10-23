@@ -1,8 +1,7 @@
 # LM-PyTorch-Training
 
-This repository contains the code for training a PyTorch `torch.nn.Module` using the Levenberg–Marquardt algorithm.
+This repository contains the code for training a PyTorch network inheriting from `torch.nn.Module` using the Levenberg–Marquardt algorithm.
 The code utilizes the `torch.func` (previously known as `functorch`) to compute the Jacobian of the model with respect to its parameters.
-See the notebooks `01_Function_approximation.ipynb` and `02_Possion_2D_PINNs.ipynb` for examples of how to use the code.
 
 ## Requirements
 
@@ -23,6 +22,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = DNN([1, 50, 1]).to(device)       # can be any model inheriting from torch.nn.Module
 params = dict(model.named_parameters())  # the model parameters in a dictionary
+for p in params.values():                # Set requires_grad to False for lower memory usage
+    p.requires_grad = False              # we do not need to engage PyTorch's autograd when using torch.func 
 
 x = torch.linspace(0, 1, 100).reshape(-1, 1).to(device)
 y = torch.sin(2 * torch.pi * x).to(device)
@@ -71,3 +72,18 @@ $$ (J^\top J + \mu I) \Delta \theta = -J^T \mathcal{L} $$
 where $\mu$ is the damping parameter, and $\Delta \theta$ is the update to the parameters $\theta$.
 
 In this implementation, we utilize the `torch.func.vmap` and `torch.func.jacrev` to compute the Jacobian matrix $J$. You will need to define $\mathcal{L}$ as a function that takes the model parameters and the input data as input and returns the loss value as in the example above.
+
+## Notebooks
+
+- `01_Function_approximation.ipynb`: Fitting the $\text{sinc}$ function using a simple DNN. Compare the results with the Adam optimizer.
+- `02_Poisson_2D_PINNs.ipynb`: Training a 2D Poisson PINN using the Levenberg–Marquardt algorithm. Compare the results with the Adam optimizer.
+
+## Results
+
+### Function approximation
+
+![Function approximation](img/sinc.png)
+
+### Physics-informed neural network (2D Poisson)
+
+![Poisson PINNs](img/2d_poisson.png)
