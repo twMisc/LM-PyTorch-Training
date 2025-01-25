@@ -57,13 +57,13 @@ print(f'The L_inf error is: {error:.4e}')
 
 ## Levenberg–Marquardt algorithm
 
-The Levenberg–Marquardt algorithm minimizes in the code minimizes the loss function given by
+The Levenberg–Marquardt algorithm minimizes the loss function given by
 
 $$
-\text{Loss}(\theta) = \frac{1}{M} \sum_{i=1}^M (\mathcal{L}(u_{\theta}(x_i)))^2
+\text{Loss}(\theta) = \sum_{i=1}^M (\mathcal{L}(u_{\theta}(x_i)))^2
 $$
 
-where $u_{\theta}(x_i)$ is the output of the model at the input $x_i$ and $\mathcal{L}$ is the loss function. (e.g. $\mathcal{L}(u_{\theta}(x_i)) = u_{\theta}(x_i) - y_i$ for the mean squared error loss).
+where $u_{\theta}(x_i)$ is the output of the model at the input $x_i$ and $\mathcal{L}$ is the loss function. (e.g. $\mathcal{L}(u_{\theta}(x_i)) = (u_{\theta}(x_i) - y_i)/\sqrt{M}$ for the mean squared error loss).
 
 Given the Jacobian matrix $J := \frac{\partial \mathcal{L}}{\partial \theta}$, in each update step the algorithm solves the linear system
 
