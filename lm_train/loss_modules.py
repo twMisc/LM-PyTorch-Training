@@ -24,7 +24,7 @@ def cal_L_vec(params, *args):
             continue
         factors.append(np.sqrt(1 / targets[0].shape[0]))
         L_vec = vmap(loss, batch_dim)(params, *targets, **kwargs)
-        L_vec_list.append(L_vec)
+        L_vec_list.append(L_vec.reshape(-1))
     L_vec = torch.cat(
         [factor * L_vec for factor, L_vec in zip(factors, L_vec_list)])
     return L_vec
@@ -37,10 +37,10 @@ def cal_J_part(params, loss, *targets, **kwargs):
     per_sample_grads = vmap(jacrev(loss), batch_dim)(params, *targets,
                                                      **kwargs)
     cnt = 0
-    for g in per_sample_grads.values():
+    for k, g in per_sample_grads.items():
         g = g.detach()
-        J_d = g.reshape(len(g), -1) if cnt == 0 else torch.hstack(
-            [J_d, g.reshape(len(g), -1)])
+        J_d = g.reshape(-1, params[k].numel()) if cnt == 0 else torch.hstack(
+            [J_d, g.reshape(-1, params[k].numel())])
         cnt = 1
     return J_d
 
