@@ -4,8 +4,13 @@ The actual loss functions are still defined in the main script.
 """
 import numpy as np
 import torch
-from torch.func import vmap, jacrev
-
+try:
+    from torch.func import vmap, jacrev
+except ImportError:
+    try:
+        from functorch import vmap, jacrev
+    except ImportError:
+        raise ImportError("Your PyTorch version is too old. Please either upgrade to PyTorch 2.0+ or run: pip install functorch")
 
 @torch.no_grad()
 def cal_L_vec(params, *args):

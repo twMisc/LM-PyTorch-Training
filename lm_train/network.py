@@ -1,8 +1,6 @@
 """Classes for constructing the network."""
 import torch
 from collections import OrderedDict
-from torch.func import jacrev
-
 
 class DNN(torch.nn.Module):
     """Deep neural network class."""

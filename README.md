@@ -87,3 +87,7 @@ In this implementation, we utilize the `torch.func.vmap` and `torch.func.jacrev`
 ### Physics-informed neural network (2D Poisson)
 
 ![Poisson PINNs](img/2d_poisson.png)
+
+## Update log
+
+- 2026-06-25: Added support for multidimensional loss functions. Added fallback to functorch for PyTorch versions < 2.0.0.
