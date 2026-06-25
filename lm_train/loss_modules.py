@@ -11,6 +11,7 @@ except ImportError:
         from functorch import vmap, jacrev
     except ImportError:
         raise ImportError("Your PyTorch version is too old. Please either upgrade to PyTorch 2.0+ or run: pip install functorch")
+from functools import partial    
 
 @torch.no_grad()
 def cal_L_vec(params, *args):
@@ -24,11 +25,12 @@ def cal_L_vec(params, *args):
     factors = list()
     for i in range(len(args)):
         loss, targets, kwargs = args[i]
-        batch_dim = tuple([None] + [0] * (len(targets)) + [None] * len(kwargs))
+        batch_dim = tuple([None] + [0] * len(targets))
         if targets[0].shape[0] == 0:
             continue
         factors.append(np.sqrt(1 / targets[0].shape[0]))
-        L_vec = vmap(loss, batch_dim)(params, *targets, **kwargs)
+        bound_loss = partial(loss, **kwargs)
+        L_vec = vmap(bound_loss, batch_dim)(params, *targets)
         L_vec_list.append(L_vec.reshape(-1))
     L_vec = torch.cat(
         [factor * L_vec for factor, L_vec in zip(factors, L_vec_list)])
@@ -38,9 +40,9 @@ def cal_L_vec(params, *args):
 @torch.no_grad()
 def cal_J_part(params, loss, *targets, **kwargs):
     """Calculate the Jacobian matrix for a loss function."""
-    batch_dim = tuple([None] + [0] * (len(targets)) + [None] * len(kwargs))
-    per_sample_grads = vmap(jacrev(loss), batch_dim)(params, *targets,
-                                                     **kwargs)
+    batch_dim = tuple([None] + [0] * len(targets))
+    bound_loss = partial(loss, **kwargs)
+    per_sample_grads = vmap(jacrev(bound_loss), batch_dim)(params, *targets)
     cnt = 0
     for k, g in per_sample_grads.items():
         g = g.detach()
